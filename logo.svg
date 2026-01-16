@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="copperGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4a574"/>
+      <stop offset="50%" style="stop-color:#c9956c"/>
+      <stop offset="100%" style="stop-color:#b8860b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Bear silhouette base -->
+  <path fill="url(#copperGrad)" d="
+    M25,28
+    C20,28 16,24 16,19 C16,14 20,10 25,10 C28,10 31,12 32,15
+    C35,12 40,10 45,10 L55,10
+    C60,10 65,12 68,15
+    C69,12 72,10 75,10 C80,10 84,14 84,19 C84,24 80,28 75,28
+    C78,32 80,38 80,45
+    L80,70 C80,80 70,90 50,90 C30,90 20,80 20,70 L20,45
+    C20,38 22,32 25,28 Z
+  "/>
+
+  <!-- PCB Circuit traces on bear -->
+  <g stroke="#1a1410" stroke-width="1.5" fill="none" stroke-linecap="round">
+    <!-- Main vertical trace (spine) -->
+    <path d="M50,20 L50,35 L50,55 L50,75"/>
+
+    <!-- Horizontal traces -->
+    <path d="M30,40 L50,40 L70,40"/>
+    <path d="M35,55 L65,55"/>
+    <path d="M32,70 L68,70"/>
+
+    <!-- Diagonal traces (left) -->
+    <path d="M30,40 L25,50"/>
+    <path d="M35,55 L28,65"/>
+
+    <!-- Diagonal traces (right) -->
+    <path d="M70,40 L75,50"/>
+    <path d="M65,55 L72,65"/>
+
+    <!-- Upper traces to ears -->
+    <path d="M50,20 L35,20 L25,18"/>
+    <path d="M50,20 L65,20 L75,18"/>
+  </g>
+
+  <!-- PCB Nodes/Pads (circuit connection points) -->
+  <g fill="#1a1410">
+    <!-- Main nodes -->
+    <circle cx="50" cy="20" r="3"/>
+    <circle cx="50" cy="35" r="2.5"/>
+    <circle cx="50" cy="55" r="3"/>
+    <circle cx="50" cy="75" r="2.5"/>
+
+    <!-- Horizontal intersection nodes -->
+    <circle cx="30" cy="40" r="2.5"/>
+    <circle cx="70" cy="40" r="2.5"/>
+    <circle cx="35" cy="55" r="2"/>
+    <circle cx="65" cy="55" r="2"/>
+    <circle cx="32" cy="70" r="2"/>
+    <circle cx="68" cy="70" r="2"/>
+
+    <!-- Edge nodes -->
+    <circle cx="25" cy="50" r="2"/>
+    <circle cx="75" cy="50" r="2"/>
+    <circle cx="28" cy="65" r="2"/>
+    <circle cx="72" cy="65" r="2"/>
+
+    <!-- Ear nodes -->
+    <circle cx="25" cy="18" r="2"/>
+    <circle cx="75" cy="18" r="2"/>
+
+    <!-- Eye nodes (larger, like ICs) -->
+    <rect x="36" y="28" width="6" height="6" rx="1"/>
+    <rect x="58" y="28" width="6" height="6" rx="1"/>
+  </g>
+
+  <!-- Small via holes -->
+  <g fill="#2a1f1a">
+    <circle cx="40" cy="45" r="1.5"/>
+    <circle cx="60" cy="45" r="1.5"/>
+    <circle cx="42" cy="62" r="1.5"/>
+    <circle cx="58" cy="62" r="1.5"/>
+    <circle cx="45" cy="80" r="1.5"/>
+    <circle cx="55" cy="80" r="1.5"/>
+  </g>
+</svg>

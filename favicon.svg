@@ -1,10 +1,44 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#7b2fff;stop-opacity:1" />
+    <linearGradient id="copperGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4a574"/>
+      <stop offset="100%" style="stop-color:#b8860b"/>
     </linearGradient>
   </defs>
-  <rect width="32" height="32" rx="6" fill="url(#grad)"/>
-  <text x="16" y="23" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#0a0a0f" text-anchor="middle">B</text>
+
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#1a1410"/>
+
+  <!-- Bear silhouette -->
+  <path fill="url(#copperGrad)" d="
+    M8,10
+    C6.5,10 5.2,8.8 5.2,7.3 C5.2,5.8 6.5,4.5 8,4.5 C9,4.5 9.8,5 10.3,5.8
+    C11.3,5 12.5,4.5 14,4.5 L18,4.5
+    C19.5,4.5 20.7,5 21.7,5.8
+    C22.2,5 23,4.5 24,4.5 C25.5,4.5 26.8,5.8 26.8,7.3 C26.8,8.8 25.5,10 24,10
+    C25,11.3 25.6,13 25.6,15
+    L25.6,23 C25.6,26 22.5,28.5 16,28.5 C9.5,28.5 6.4,26 6.4,23 L6.4,15
+    C6.4,13 7,11.3 8,10 Z
+  "/>
+
+  <!-- Circuit traces -->
+  <g stroke="#1a1410" stroke-width="1" fill="none" stroke-linecap="round">
+    <path d="M16,8 L16,14 L16,22"/>
+    <path d="M10,14 L22,14"/>
+    <path d="M11,20 L21,20"/>
+  </g>
+
+  <!-- Circuit nodes -->
+  <g fill="#1a1410">
+    <circle cx="16" cy="8" r="1.5"/>
+    <circle cx="16" cy="14" r="1.5"/>
+    <circle cx="16" cy="22" r="1.5"/>
+    <circle cx="10" cy="14" r="1.2"/>
+    <circle cx="22" cy="14" r="1.2"/>
+    <circle cx="11" cy="20" r="1"/>
+    <circle cx="21" cy="20" r="1"/>
+    <!-- Eyes -->
+    <rect x="11.5" y="10" width="2.5" height="2.5" rx="0.5"/>
+    <rect x="18" y="10" width="2.5" height="2.5" rx="0.5"/>
+  </g>
 </svg>

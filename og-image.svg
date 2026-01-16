@@ -1,16 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
   <defs>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0a0a0f;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#12121a;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#1a1410"/>
+      <stop offset="100%" style="stop-color:#231c16"/>
     </linearGradient>
-    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#7b2fff;stop-opacity:1" />
+    <linearGradient id="copperGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4a574"/>
+      <stop offset="100%" style="stop-color:#b8860b"/>
     </linearGradient>
     <linearGradient id="glowGrad" x1="50%" y1="0%" x2="50%" y2="100%">
-      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:0.15" />
-      <stop offset="100%" style="stop-color:#00d4ff;stop-opacity:0" />
+      <stop offset="0%" style="stop-color:#d4a574;stop-opacity:0.12"/>
+      <stop offset="100%" style="stop-color:#d4a574;stop-opacity:0"/>
     </linearGradient>
   </defs>
 
@@ -22,20 +22,53 @@
 
   <!-- Grid pattern -->
   <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-    <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+    <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(212,165,116,0.03)" stroke-width="1"/>
   </pattern>
   <rect width="1200" height="630" fill="url(#grid)"/>
 
-  <!-- Logo -->
-  <rect x="520" y="180" width="70" height="70" rx="14" fill="url(#accentGrad)"/>
-  <text x="555" y="235" font-family="Arial, sans-serif" font-size="42" font-weight="bold" fill="#0a0a0f" text-anchor="middle">B</text>
+  <!-- Bear Logo -->
+  <g transform="translate(530, 140)">
+    <path fill="url(#copperGrad)" d="
+      M35,30
+      C25,30 17,22 17,13 C17,4 25,0 35,0 C42,0 48,4 51,10
+      C57,4 67,0 80,0 L100,0
+      C113,0 123,4 129,10
+      C132,4 138,0 145,0 C155,0 163,4 163,13 C163,22 155,30 145,30
+      C152,38 157,50 157,65
+      L157,110 C157,130 140,150 90,150 C40,150 23,130 23,110 L23,65
+      C23,50 28,38 35,30 Z
+    "/>
+    <!-- Circuit traces -->
+    <g stroke="#1a1410" stroke-width="3" fill="none" stroke-linecap="round">
+      <path d="M90,20 L90,50 L90,90 L90,120"/>
+      <path d="M45,55 L90,55 L135,55"/>
+      <path d="M55,85 L125,85"/>
+      <path d="M50,115 L130,115"/>
+    </g>
+    <!-- Circuit nodes -->
+    <g fill="#1a1410">
+      <circle cx="90" cy="20" r="5"/>
+      <circle cx="90" cy="55" r="5"/>
+      <circle cx="90" cy="90" r="5"/>
+      <circle cx="90" cy="120" r="4"/>
+      <circle cx="45" cy="55" r="4"/>
+      <circle cx="135" cy="55" r="4"/>
+      <circle cx="55" cy="85" r="3.5"/>
+      <circle cx="125" cy="85" r="3.5"/>
+      <circle cx="50" cy="115" r="3"/>
+      <circle cx="130" cy="115" r="3"/>
+      <!-- Eyes -->
+      <rect x="60" y="35" width="12" height="12" rx="2"/>
+      <rect x="108" y="35" width="12" height="12" rx="2"/>
+    </g>
+  </g>
 
   <!-- Company Name -->
-  <text x="600" y="320" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#ffffff" text-anchor="middle">Bjorn Technologies</text>
+  <text x="600" y="360" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#f5f0eb" text-anchor="middle">Bjorn Technologies</text>
 
   <!-- Tagline -->
-  <text x="600" y="380" font-family="Arial, sans-serif" font-size="24" fill="#a0a0b0" text-anchor="middle">Custom Development | IT Consulting | Digital Solutions</text>
+  <text x="600" y="420" font-family="Arial, sans-serif" font-size="24" fill="#b8a99a" text-anchor="middle">Bare Tech Solutions | Custom Development | Local AI</text>
 
   <!-- Website URL -->
-  <text x="600" y="480" font-family="Arial, sans-serif" font-size="20" fill="#00d4ff" text-anchor="middle">bjorntechnologies.com.au</text>
+  <text x="600" y="520" font-family="Arial, sans-serif" font-size="20" fill="#d4a574" text-anchor="middle">bjorntechnologies.com.au</text>
 </svg>

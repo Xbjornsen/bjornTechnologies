@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Bjorn Technologies - Custom software development, IT consulting, and digital solutions to power your business forward. Based in Australia.">
-    <meta name="keywords" content="IT services, custom software development, web development, IT consulting, digital solutions, Australia">
+    <meta name="description" content="Bjorn Technologies - Bare tech solutions. Custom software development, IT consulting, and digital solutions stripped down to what matters. Based in Australia.">
+    <meta name="keywords" content="IT services, custom software development, web development, IT consulting, digital solutions, local AI, LLM training, AI deployment, Australia">
     <meta name="author" content="Bjorn Technologies">
     <meta name="robots" content="index, follow">
     <title>Bjorn Technologies | IT Services & Custom Development | Australia</title>
@@ -69,11 +69,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Animated Circuit Background -->
+    <canvas id="circuitCanvas"></canvas>
+
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container nav-container">
             <a href="#" class="logo">
-                <span class="logo-icon">B</span>
+                <img src="logo.svg" alt="Bjorn Technologies" class="logo-icon">
                 <span class="logo-text">Bjorn Technologies</span>
             </a>
             <button class="mobile-menu-btn" aria-label="Toggle menu">
@@ -93,25 +96,11 @@
     <section class="hero">
         <div class="hero-bg"></div>
         <div class="container hero-content">
-            <h1>Transform Your Business With <span class="gradient-text">Cutting-Edge Technology</span></h1>
-            <p class="hero-subtitle">We deliver custom software solutions, IT consulting, and digital experiences that drive growth and innovation.</p>
+            <h1>Bare Tech Solutions <span class="gradient-text">Built to Perform</span></h1>
+            <p class="hero-subtitle">No fluff. No bloat. Just powerful custom software, strategic IT consulting, and digital solutions stripped down to what matters.</p>
             <div class="hero-cta">
                 <a href="#contact" class="btn btn-primary btn-large">Book a Call</a>
                 <a href="#services" class="btn btn-secondary btn-large">Our Services</a>
-            </div>
-            <div class="hero-stats">
-                <div class="stat">
-                    <span class="stat-number">50+</span>
-                    <span class="stat-label">Projects Delivered</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-number">99%</span>
-                    <span class="stat-label">Client Satisfaction</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-number">24/7</span>
-                    <span class="stat-label">Support Available</span>
-                </div>
             </div>
         </div>
     </section>
@@ -121,8 +110,8 @@
         <div class="container">
             <div class="section-header">
                 <span class="section-tag">What We Do</span>
-                <h2>Services That <span class="gradient-text">Power Your Success</span></h2>
-                <p>From concept to deployment, we provide end-to-end solutions tailored to your needs.</p>
+                <h2>Bare Essentials, <span class="gradient-text">Maximum Impact</span></h2>
+                <p>No unnecessary complexity. Just lean, effective solutions built to get the job done.</p>
             </div>
             <div class="services-grid">
                 <div class="service-card">
@@ -172,6 +161,26 @@
                         <li>Brand Identity</li>
                     </ul>
                 </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/>
+                            <path d="M12 12c-4 0-8 2-8 5v3h16v-3c0-3-4-5-8-5z"/>
+                            <circle cx="6" cy="6" r="2"/>
+                            <circle cx="18" cy="6" r="2"/>
+                            <path d="M6 8v2M18 8v2"/>
+                            <path d="M4 6h2M18 6h2"/>
+                        </svg>
+                    </div>
+                    <h3>Local AI Solutions</h3>
+                    <p>Harness the power of AI on your own infrastructure. Private, secure, and tailored to your data.</p>
+                    <ul class="service-features">
+                        <li>LLM Fine-tuning & Training</li>
+                        <li>On-premise AI Deployment</li>
+                        <li>Custom AI Assistants</li>
+                        <li>Data Privacy Compliance</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </section>
@@ -182,8 +191,8 @@
             <div class="contact-wrapper">
                 <div class="contact-info">
                     <span class="section-tag">Get Started</span>
-                    <h2>Let's Build Something <span class="gradient-text">Amazing Together</span></h2>
-                    <p>Ready to transform your business? Book a free consultation call and let's discuss how we can help you achieve your goals.</p>
+                    <h2>Ready to Strip Away <span class="gradient-text">The Complexity?</span></h2>
+                    <p>Book a free consultation and let's discuss how bare tech solutions can streamline your business.</p>
                     <div class="contact-details">
                         <div class="contact-item">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -220,6 +229,7 @@
                             <option value="custom-dev">Custom Development</option>
                             <option value="consulting">IT Consulting</option>
                             <option value="website">Website & Media</option>
+                            <option value="ai-solutions">Local AI Solutions</option>
                             <option value="other">Other</option>
                         </select>
                     </div>
@@ -239,10 +249,10 @@
             <div class="footer-content">
                 <div class="footer-brand">
                     <a href="#" class="logo">
-                        <span class="logo-icon">B</span>
+                        <img src="logo.svg" alt="Bjorn Technologies" class="logo-icon">
                         <span class="logo-text">Bjorn Technologies</span>
                     </a>
-                    <p>Empowering businesses through innovative technology solutions.</p>
+                    <p>Bare tech solutions. No bloat, just results.</p>
                 </div>
                 <div class="footer-links">
                     <h4>Quick Links</h4>
@@ -257,6 +267,7 @@
                         <li><a href="#services">Custom Development</a></li>
                         <li><a href="#services">IT Consulting</a></li>
                         <li><a href="#services">Website & Media</a></li>
+                        <li><a href="#services">Local AI Solutions</a></li>
                     </ul>
                 </div>
             </div>
