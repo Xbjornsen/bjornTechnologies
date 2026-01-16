@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#12121a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7b2fff;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:0.15" />
+      <stop offset="100%" style="stop-color:#00d4ff;stop-opacity:0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)"/>
+
+  <!-- Glow effect -->
+  <ellipse cx="600" cy="0" rx="600" ry="300" fill="url(#glowGrad)"/>
+
+  <!-- Grid pattern -->
+  <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+    <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+  </pattern>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <!-- Logo -->
+  <rect x="520" y="180" width="70" height="70" rx="14" fill="url(#accentGrad)"/>
+  <text x="555" y="235" font-family="Arial, sans-serif" font-size="42" font-weight="bold" fill="#0a0a0f" text-anchor="middle">B</text>
+
+  <!-- Company Name -->
+  <text x="600" y="320" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#ffffff" text-anchor="middle">Bjorn Technologies</text>
+
+  <!-- Tagline -->
+  <text x="600" y="380" font-family="Arial, sans-serif" font-size="24" fill="#a0a0b0" text-anchor="middle">Custom Development | IT Consulting | Digital Solutions</text>
+
+  <!-- Website URL -->
+  <text x="600" y="480" font-family="Arial, sans-serif" font-size="20" fill="#00d4ff" text-anchor="middle">bjorntechnologies.com.au</text>
+</svg>

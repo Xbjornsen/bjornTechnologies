@@ -1,0 +1,7 @@
+# Robots.txt for bjorntechnologies.com.au
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://bjorntechnologies.com.au/sitemap.xml
