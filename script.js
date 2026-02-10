@@ -6,16 +6,16 @@ const ctx = canvas.getContext('2d');
 
 // Configuration
 const config = {
-    nodeCount: 80,
-    connectionDistance: 150,
-    nodeSpeed: 0.3,
-    pulseSpeed: 0.02,
-    nodeSize: { min: 2, max: 4 },
+    nodeCount: 35,
+    connectionDistance: 120,
+    nodeSpeed: 0.15,
+    pulseSpeed: 0.01,
+    nodeSize: { min: 1, max: 2 },
     colors: {
         node: '#d4a574',
         nodePulse: '#b8860b',
-        connection: 'rgba(212, 165, 116, 0.15)',
-        connectionActive: 'rgba(212, 165, 116, 0.4)'
+        connection: 'rgba(212, 165, 116, 0.08)',
+        connectionActive: 'rgba(212, 165, 116, 0.2)'
     }
 };
 
@@ -59,9 +59,9 @@ class Node {
         this.pulsePhase += this.pulseSpeed;
 
         // Random activation (neural firing)
-        if (Math.random() < 0.001) {
+        if (Math.random() < 0.0003) {
             this.isActive = true;
-            this.activeTimer = 60;
+            this.activeTimer = 40;
         }
 
         if (this.activeTimer > 0) {
@@ -82,7 +82,7 @@ class Node {
                 this.x, this.y, 0,
                 this.x, this.y, currentRadius * 3
             );
-            gradient.addColorStop(0, 'rgba(212, 165, 116, 0.3)');
+            gradient.addColorStop(0, 'rgba(212, 165, 116, 0.15)');
             gradient.addColorStop(1, 'rgba(212, 165, 116, 0)');
             ctx.fillStyle = gradient;
             ctx.fill();
@@ -173,17 +173,17 @@ function drawConnections() {
                 ctx.lineTo(nodes[j].x, nodes[j].y);
 
                 if (isActiveConnection) {
-                    ctx.strokeStyle = `rgba(212, 165, 116, ${opacity * 0.5})`;
-                    ctx.lineWidth = 1.5;
+                    ctx.strokeStyle = `rgba(212, 165, 116, ${opacity * 0.25})`;
+                    ctx.lineWidth = 1;
 
                     // Spawn data pulse occasionally
-                    if (Math.random() < 0.01 && dataPulses.length < 20) {
+                    if (Math.random() < 0.005 && dataPulses.length < 8) {
                         const startNode = nodes[i].isActive ? nodes[i] : nodes[j];
                         const endNode = nodes[i].isActive ? nodes[j] : nodes[i];
                         dataPulses.push(new DataPulse(startNode, endNode));
                     }
                 } else {
-                    ctx.strokeStyle = `rgba(212, 165, 116, ${opacity * 0.1})`;
+                    ctx.strokeStyle = `rgba(212, 165, 116, ${opacity * 0.05})`;
                     ctx.lineWidth = 0.5;
                 }
 
@@ -234,8 +234,8 @@ animate();
 setInterval(() => {
     const randomNode = nodes[Math.floor(Math.random() * nodes.length)];
     randomNode.isActive = true;
-    randomNode.activeTimer = 60;
-}, 2000);
+    randomNode.activeTimer = 30;
+}, 4000);
 
 // ============================================
 // MAIN SITE FUNCTIONALITY
@@ -295,7 +295,7 @@ window.addEventListener('scroll', () => {
 // Contact Form Handling
 const contactForm = document.getElementById('contactForm');
 
-contactForm.addEventListener('submit', function(e) {
+contactForm.addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const formData = new FormData(this);
@@ -314,19 +314,31 @@ contactForm.addEventListener('submit', function(e) {
         return;
     }
 
-    // Simulate form submission
     const submitBtn = this.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Sending...';
     submitBtn.disabled = true;
 
-    // Simulate API call delay
-    setTimeout(() => {
-        showNotification('Thank you! We\'ll be in touch soon to schedule your call.', 'success');
-        this.reset();
+    try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification('Thank you! We\'ll be in touch soon to schedule your call.', 'success');
+            this.reset();
+        } else {
+            showNotification('Something went wrong. Please try again.', 'error');
+        }
+    } catch (error) {
+        showNotification('Something went wrong. Please try again.', 'error');
+    } finally {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
-    }, 1500);
+    }
 });
 
 // Notification System
