@@ -13,6 +13,9 @@
     --color-card-bg: rgba(212, 165, 116, 0.05);
     --color-card-hover: rgba(212, 165, 116, 0.1);
     --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Syne', 'Inter', sans-serif;
+    --color-success: #4a9e6f;
+    --color-error: #c25c5c;
     --transition-fast: 0.2s ease;
     --transition-medium: 0.3s ease;
     --border-radius: 12px;
@@ -36,6 +39,18 @@ body {
     color: var(--color-text-primary);
     line-height: 1.6;
     overflow-x: hidden;
+}
+
+/* Grain texture overlay */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    opacity: 0.032;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C%2Fsvg%3E");
+    background-size: 200px 200px;
 }
 
 /* Animated Circuit Background */
@@ -98,12 +113,6 @@ img {
 .btn-primary {
     background: var(--color-accent-gradient);
     color: var(--color-bg-primary);
-    box-shadow: 0 4px 20px rgba(212, 165, 116, 0.3);
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 30px rgba(212, 165, 116, 0.4);
 }
 
 .btn-secondary {
@@ -240,11 +249,12 @@ img {
 }
 
 .hero h1 {
-    font-size: clamp(2.5rem, 6vw, 4rem);
-    font-weight: 700;
-    line-height: 1.1;
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 7vw, 5rem);
+    font-weight: 800;
+    line-height: 1.05;
     margin-bottom: 24px;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.04em;
 }
 
 .hero-subtitle {
@@ -292,7 +302,10 @@ img {
 .services {
     position: relative;
     padding: 100px 0;
-    background: var(--color-bg-secondary);
+    background:
+        radial-gradient(ellipse 70% 50% at 5% 50%, rgba(212, 165, 116, 0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 95% 50%, rgba(184, 134, 11, 0.04) 0%, transparent 60%),
+        var(--color-bg-secondary);
     z-index: 1;
 }
 
@@ -315,10 +328,11 @@ img {
 }
 
 .section-header h2 {
-    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 4.5vw, 3.25rem);
     font-weight: 700;
     margin-bottom: 16px;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.035em;
 }
 
 .section-header p {
@@ -330,6 +344,8 @@ img {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 24px;
+    perspective: 1400px;
+    perspective-origin: 50% -20%;
 }
 
 .service-card {
@@ -340,11 +356,6 @@ img {
     transition: all var(--transition-medium);
 }
 
-.service-card:hover {
-    background: var(--color-card-hover);
-    border-color: rgba(212, 165, 116, 0.3);
-    transform: translateY(-4px);
-}
 
 .service-icon {
     display: flex;
@@ -364,9 +375,11 @@ img {
 }
 
 .service-card h3 {
+    font-family: var(--font-display);
     font-size: 1.35rem;
     font-weight: 700;
     margin-bottom: 12px;
+    letter-spacing: -0.02em;
 }
 
 .service-card > p {
@@ -416,10 +429,11 @@ img {
 }
 
 .contact-info h2 {
-    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
     font-weight: 700;
     margin-bottom: 16px;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.035em;
 }
 
 .contact-info > p {
@@ -634,7 +648,8 @@ img {
 
 @media (max-width: 480px) {
     .hero h1 {
-        font-size: 2rem;
+        font-size: 2.4rem;
+        letter-spacing: -0.03em;
     }
 
     .hero-cta {
@@ -649,6 +664,210 @@ img {
         padding: 24px;
     }
 }
+
+/* ============================================
+   3D DEPTH SYSTEM
+   ============================================ */
+
+/* Perspective floor grid in hero */
+.hero-floor {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 220%;
+    height: 55%;
+    background-image:
+        linear-gradient(rgba(212, 165, 116, 0.09) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212, 165, 116, 0.09) 1px, transparent 1px);
+    background-size: 80px 80px;
+    transform: translateX(-50%) perspective(500px) rotateX(70deg);
+    transform-origin: center bottom;
+    -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.3) 35%, transparent 70%);
+    mask-image: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.3) 35%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Floating depth orbs */
+.hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hero-orb-1 {
+    width: 700px;
+    height: 700px;
+    top: -250px;
+    left: -200px;
+    background: radial-gradient(circle at 40% 40%, rgba(212, 165, 116, 0.17) 0%, transparent 65%);
+    filter: blur(50px);
+    animation: orbDrift1 20s ease-in-out infinite;
+}
+
+.hero-orb-2 {
+    width: 550px;
+    height: 550px;
+    bottom: -80px;
+    right: -120px;
+    background: radial-gradient(circle at 60% 60%, rgba(184, 134, 11, 0.14) 0%, transparent 65%);
+    filter: blur(55px);
+    animation: orbDrift2 25s ease-in-out infinite;
+}
+
+.hero-orb-3 {
+    width: 400px;
+    height: 400px;
+    top: 35%;
+    left: 42%;
+    background: radial-gradient(circle at 50% 50%, rgba(212, 165, 116, 0.11) 0%, transparent 65%);
+    filter: blur(70px);
+    animation: orbDrift3 32s ease-in-out infinite;
+}
+
+@keyframes orbDrift1 {
+    0%, 100% { transform: translate(0px, 0px) scale(1); }
+    25%       { transform: translate(45px, 30px) scale(1.04); }
+    50%       { transform: translate(20px, 65px) scale(0.96); }
+    75%       { transform: translate(-25px, 35px) scale(1.02); }
+}
+
+@keyframes orbDrift2 {
+    0%, 100% { transform: translate(0px, 0px) scale(1); }
+    33%       { transform: translate(-55px, -45px) scale(1.05); }
+    66%       { transform: translate(35px, -25px) scale(0.94); }
+}
+
+@keyframes orbDrift3 {
+    0%, 100% { transform: translate(0px, 0px); }
+    50%       { transform: translate(-35px, -55px); }
+}
+
+/* Ensure hero content sits above depth layers */
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* Glowing section divider lines */
+.services::before,
+.services::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(212, 165, 116, 0.25) 15%,
+        rgba(212, 165, 116, 0.6) 50%,
+        rgba(212, 165, 116, 0.25) 85%,
+        transparent 100%);
+    box-shadow: 0 0 18px rgba(212, 165, 116, 0.18);
+}
+
+.services::before { top: 0; }
+.services::after  { bottom: 0; }
+
+/* Card 3D layered shadow + shimmer */
+.service-card {
+    position: relative;
+    transform-style: preserve-3d;
+    will-change: transform;
+    box-shadow:
+        0 1px 2px  rgba(0, 0, 0, 0.3),
+        0 4px 8px  rgba(0, 0, 0, 0.22),
+        0 12px 24px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(212, 165, 116, 0.07);
+    transition: box-shadow 0.35s ease;
+}
+
+/* Shimmer highlight overlay */
+.service-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+        135deg,
+        rgba(212, 165, 116, 0.07) 0%,
+        transparent 45%,
+        rgba(212, 165, 116, 0.03) 100%
+    );
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+.service-card:hover::after {
+    opacity: 1;
+}
+
+.service-card:hover {
+    background: var(--color-card-hover);
+    border-color: rgba(212, 165, 116, 0.3);
+    box-shadow:
+        0 2px 4px   rgba(0, 0, 0, 0.35),
+        0 8px 16px  rgba(0, 0, 0, 0.28),
+        0 20px 40px rgba(0, 0, 0, 0.2),
+        0 40px 60px rgba(0, 0, 0, 0.1),
+        0 0 50px    rgba(212, 165, 116, 0.1),
+        inset 0 1px 0 rgba(212, 165, 116, 0.12);
+}
+
+/* Service icon depth glow */
+.service-icon {
+    box-shadow:
+        0 4px 12px rgba(212, 165, 116, 0.3),
+        0 2px 4px  rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Contact form floating depth */
+.contact-form {
+    box-shadow:
+        0 4px 8px   rgba(0, 0, 0, 0.2),
+        0 12px 24px rgba(0, 0, 0, 0.15),
+        0 24px 48px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(212, 165, 116, 0.07);
+}
+
+/* Button 3D depth */
+.btn-primary {
+    box-shadow:
+        0 4px 20px rgba(212, 165, 116, 0.3),
+        0 2px 4px  rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 8px 32px rgba(212, 165, 116, 0.45),
+        0 4px 12px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.btn-primary:active {
+    transform: translateY(1px);
+    box-shadow:
+        0 2px 8px  rgba(212, 165, 116, 0.2),
+        0 1px 2px  rgba(0, 0, 0, 0.3),
+        inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Navbar depth glass */
+.navbar {
+    box-shadow:
+        0 1px 0 rgba(212, 165, 116, 0.08),
+        0 4px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* ============================================
+   END 3D DEPTH SYSTEM
+   ============================================ */
 
 /* Animations */
 @keyframes fadeInUp {

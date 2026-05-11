@@ -6,11 +6,11 @@ const ctx = canvas.getContext('2d');
 
 // Configuration
 const config = {
-    nodeCount: 35,
-    connectionDistance: 120,
+    nodeCount: 50,
+    connectionDistance: 140,
     nodeSpeed: 0.15,
     pulseSpeed: 0.01,
-    nodeSize: { min: 1, max: 2 },
+    nodeSize: { min: 0.8, max: 3 },
     colors: {
         node: '#d4a574',
         nodePulse: '#b8860b',
@@ -32,9 +32,12 @@ class Node {
     constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * config.nodeSpeed;
-        this.vy = (Math.random() - 0.5) * config.nodeSpeed;
-        this.radius = Math.random() * (config.nodeSize.max - config.nodeSize.min) + config.nodeSize.min;
+        this.depth = Math.random(); // 0 = far (small/dim), 1 = near (large/bright)
+        const speedScale = 0.4 + this.depth * 0.6;
+        this.vx = (Math.random() - 0.5) * config.nodeSpeed * speedScale;
+        this.vy = (Math.random() - 0.5) * config.nodeSpeed * speedScale;
+        const sizeRange = config.nodeSize.max - config.nodeSize.min;
+        this.radius = config.nodeSize.min + this.depth * sizeRange;
         this.pulsePhase = Math.random() * Math.PI * 2;
         this.pulseSpeed = config.pulseSpeed + Math.random() * 0.01;
         this.connections = [];
@@ -88,11 +91,12 @@ class Node {
             ctx.fill();
         }
 
-        // Main node
+        // Main node — brighter/larger nodes appear closer (depth-based opacity)
+        const baseAlpha = 0.25 + this.depth * 0.55;
         ctx.beginPath();
         ctx.arc(this.x, this.y, currentRadius, 0, Math.PI * 2);
         ctx.fillStyle = this.isActive ? config.colors.nodePulse : config.colors.node;
-        ctx.globalAlpha = 0.6 + pulse * 0.4;
+        ctx.globalAlpha = baseAlpha + pulse * 0.2;
         ctx.fill();
         ctx.globalAlpha = 1;
     }
@@ -172,19 +176,22 @@ function drawConnections() {
                 ctx.moveTo(nodes[i].x, nodes[i].y);
                 ctx.lineTo(nodes[j].x, nodes[j].y);
 
+                // Average depth of the two connected nodes for line weight/opacity
+                const avgDepth = (nodes[i].depth + nodes[j].depth) * 0.5;
+
                 if (isActiveConnection) {
-                    ctx.strokeStyle = `rgba(212, 165, 116, ${opacity * 0.25})`;
-                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = `rgba(212, 165, 116, ${opacity * 0.28 * (0.5 + avgDepth * 0.5)})`;
+                    ctx.lineWidth = 0.5 + avgDepth * 0.8;
 
                     // Spawn data pulse occasionally
-                    if (Math.random() < 0.005 && dataPulses.length < 8) {
+                    if (Math.random() < 0.005 && dataPulses.length < 10) {
                         const startNode = nodes[i].isActive ? nodes[i] : nodes[j];
                         const endNode = nodes[i].isActive ? nodes[j] : nodes[i];
                         dataPulses.push(new DataPulse(startNode, endNode));
                     }
                 } else {
-                    ctx.strokeStyle = `rgba(212, 165, 116, ${opacity * 0.05})`;
-                    ctx.lineWidth = 0.5;
+                    ctx.strokeStyle = `rgba(212, 165, 116, ${opacity * 0.045 * (0.3 + avgDepth * 0.7)})`;
+                    ctx.lineWidth = 0.3 + avgDepth * 0.4;
                 }
 
                 ctx.stroke();
@@ -429,7 +436,8 @@ const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
+            entry.target.style.transform = 'perspective(1400px) rotateX(0deg) rotateY(0deg) translateY(0)';
+            entry.target.dataset.revealed = 'true';
         }
     });
 }, observerOptions);
@@ -438,6 +446,56 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.service-card').forEach((card, index) => {
     card.style.opacity = '0';
     card.style.transform = 'translateY(30px)';
-    card.style.transition = `all 0.6s ease ${index * 0.1}s`;
+    card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s, box-shadow 0.35s ease`;
     observer.observe(card);
 });
+
+// ============================================
+// 3D CARD TILT ON MOUSE MOVE
+// ============================================
+document.querySelectorAll('.service-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+        if (card.dataset.revealed !== 'true') return;
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+        const rotateX = ((y - cy) / cy) * -6;
+        const rotateY = ((x - cx) / cx) * 9;
+        card.style.transition = 'transform 0.08s ease, box-shadow 0.35s ease';
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px) scale(1.01)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+        card.style.transition = 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.35s ease';
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0) scale(1)';
+    });
+});
+
+// ============================================
+// HERO PARALLAX ON SCROLL
+// ============================================
+const heroBg    = document.querySelector('.hero-bg');
+const heroFloor = document.querySelector('.hero-floor');
+const heroOrbs  = document.querySelectorAll('.hero-orb');
+const heroEl    = document.querySelector('.hero');
+
+window.addEventListener('scroll', () => {
+    const scrollY = window.pageYOffset;
+    const heroH   = heroEl ? heroEl.offsetHeight : window.innerHeight;
+    if (scrollY > heroH) return;
+
+    const p = scrollY / heroH; // 0..1
+
+    if (heroBg) {
+        heroBg.style.transform = `translateY(${scrollY * 0.25}px)`;
+    }
+    if (heroFloor) {
+        heroFloor.style.transform = `translateX(-50%) perspective(500px) rotateX(70deg) translateY(${scrollY * -0.3}px)`;
+    }
+    heroOrbs.forEach((orb, i) => {
+        const factor = 0.08 + i * 0.06;
+        orb.style.transform = `translateY(${scrollY * factor}px)`;
+    });
+}, { passive: true });
