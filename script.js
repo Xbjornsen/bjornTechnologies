@@ -3,10 +3,17 @@
 // ============================================
 const canvas = document.getElementById('circuitCanvas');
 const ctx = canvas.getContext('2d');
+const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+const prefersReducedMotion = () => reducedMotionQuery.matches;
+
+// Logical (CSS pixel) viewport size — the canvas backing store is scaled by devicePixelRatio
+let viewW = window.innerWidth;
+let viewH = window.innerHeight;
+let bgReady = false;
 
 // Configuration
 const config = {
-    nodeCount: 50,
+    nodeCount: window.innerWidth < 768 ? 24 : 50,
     connectionDistance: 140,
     nodeSpeed: 0.15,
     pulseSpeed: 0.01,
@@ -19,10 +26,17 @@ const config = {
     }
 };
 
-// Resize canvas
+// Resize canvas (crisp on high-DPI screens)
 function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    viewW = window.innerWidth;
+    viewH = window.innerHeight;
+    canvas.width = Math.round(viewW * dpr);
+    canvas.height = Math.round(viewH * dpr);
+    canvas.style.width = viewW + 'px';
+    canvas.style.height = viewH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (bgReady && prefersReducedMotion()) drawStaticFrame();
 }
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
@@ -30,8 +44,8 @@ window.addEventListener('resize', resizeCanvas);
 // Node class
 class Node {
     constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
+        this.x = Math.random() * viewW;
+        this.y = Math.random() * viewH;
         this.depth = Math.random(); // 0 = far (small/dim), 1 = near (large/bright)
         const speedScale = 0.4 + this.depth * 0.6;
         this.vx = (Math.random() - 0.5) * config.nodeSpeed * speedScale;
@@ -51,12 +65,12 @@ class Node {
         this.y += this.vy;
 
         // Bounce off edges
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        if (this.x < 0 || this.x > viewW) this.vx *= -1;
+        if (this.y < 0 || this.y > viewH) this.vy *= -1;
 
         // Keep in bounds
-        this.x = Math.max(0, Math.min(canvas.width, this.x));
-        this.y = Math.max(0, Math.min(canvas.height, this.y));
+        this.x = Math.max(0, Math.min(viewW, this.x));
+        this.y = Math.max(0, Math.min(viewH, this.y));
 
         // Update pulse
         this.pulsePhase += this.pulseSpeed;
@@ -160,15 +174,19 @@ class DataPulse {
 
 const dataPulses = [];
 
+const connectionDistanceSq = config.connectionDistance * config.connectionDistance;
+
 // Draw connections between nodes
 function drawConnections() {
     for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
             const dx = nodes[i].x - nodes[j].x;
             const dy = nodes[i].y - nodes[j].y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+            const distSq = dx * dx + dy * dy;
+            if (distSq >= connectionDistanceSq) continue;
+            const distance = Math.sqrt(distSq);
 
-            if (distance < config.connectionDistance) {
+            {
                 const opacity = 1 - (distance / config.connectionDistance);
                 const isActiveConnection = nodes[i].isActive || nodes[j].isActive;
 
@@ -204,12 +222,12 @@ function drawConnections() {
 function animate() {
     // Clear canvas with fade effect for trails
     ctx.fillStyle = 'rgba(26, 20, 16, 0.1)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, viewW, viewH);
 
     // Clear more aggressively periodically to prevent buildup
     if (Math.random() < 0.01) {
         ctx.fillStyle = 'rgba(26, 20, 16, 0.5)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, viewW, viewH);
     }
 
     // Draw connections first (behind nodes)
@@ -231,14 +249,34 @@ function animate() {
         node.draw();
     });
 
-    requestAnimationFrame(animate);
+    animationId = requestAnimationFrame(animate);
 }
 
-// Start animation
-animate();
+// Single still frame for users who prefer reduced motion
+function drawStaticFrame() {
+    ctx.fillStyle = 'rgb(26, 20, 16)';
+    ctx.fillRect(0, 0, viewW, viewH);
+    drawConnections();
+    nodes.forEach(node => node.draw());
+}
+
+let animationId = null;
+function startBackground() {
+    if (animationId !== null) cancelAnimationFrame(animationId);
+    animationId = null;
+    if (prefersReducedMotion()) {
+        drawStaticFrame();
+    } else {
+        animate();
+    }
+}
+bgReady = true;
+startBackground();
+reducedMotionQuery.addEventListener?.('change', startBackground);
 
 // Randomly activate nodes periodically
 setInterval(() => {
+    if (prefersReducedMotion() || document.hidden) return;
     const randomNode = nodes[Math.floor(Math.random() * nodes.length)];
     randomNode.isActive = true;
     randomNode.activeTimer = 30;
@@ -252,40 +290,54 @@ setInterval(() => {
 const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
 const navLinks = document.querySelector('.nav-links');
 
+function setMenuOpen(open) {
+    navLinks.classList.toggle('active', open);
+    mobileMenuBtn.classList.toggle('active', open);
+    mobileMenuBtn.setAttribute('aria-expanded', String(open));
+}
+
 mobileMenuBtn.addEventListener('click', () => {
-    navLinks.classList.toggle('active');
-    mobileMenuBtn.classList.toggle('active');
+    setMenuOpen(!navLinks.classList.contains('active'));
 });
 
-// Close mobile menu when clicking a link
+// Close mobile menu when clicking a link, or pressing Escape
 navLinks.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-        navLinks.classList.remove('active');
-        mobileMenuBtn.classList.remove('active');
-    });
+    link.addEventListener('click', () => setMenuOpen(false));
+});
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navLinks.classList.contains('active')) {
+        setMenuOpen(false);
+        mobileMenuBtn.focus();
+    }
 });
 
 // Smooth scroll for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            const headerOffset = 80;
-            const elementPosition = target.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        const href = this.getAttribute('href');
+        const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
 
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
+        // Bare "#" (logo links) — scroll to top. querySelector('#') would throw.
+        if (href === '#') {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior });
+            history.replaceState(null, '', window.location.pathname);
+            return;
         }
+
+        let target = null;
+        try { target = document.querySelector(href); } catch (_) { return; }
+        if (!target) return;
+
+        e.preventDefault();
+        const headerOffset = 80;
+        const offsetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+        window.scrollTo({ top: offsetPosition, behavior });
     });
 });
 
 // Navbar scroll effect
 const navbar = document.querySelector('.navbar');
-let lastScroll = 0;
 
 window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
@@ -295,8 +347,6 @@ window.addEventListener('scroll', () => {
     } else {
         navbar.style.background = 'rgba(26, 20, 16, 0.9)';
     }
-
-    lastScroll = currentScroll;
 });
 
 // Contact Form Handling
@@ -307,6 +357,9 @@ contactForm.addEventListener('submit', async function(e) {
 
     const formData = new FormData(this);
     const data = Object.fromEntries(formData);
+
+    // Honeypot — real users never tick the hidden botcheck box
+    if (data.botcheck) return;
 
     // Basic validation
     if (!data.name || !data.email || !data.service) {
@@ -357,10 +410,14 @@ function showNotification(message, type = 'success') {
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-        <span>${message}</span>
-        <button class="notification-close">&times;</button>
-    `;
+    notification.setAttribute('role', type === 'error' ? 'alert' : 'status');
+    const text = document.createElement('span');
+    text.textContent = message;
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'notification-close';
+    closeBtn.setAttribute('aria-label', 'Dismiss');
+    closeBtn.innerHTML = '&times;';
+    notification.append(text, closeBtn);
 
     // Add styles dynamically
     notification.style.cssText = `
@@ -368,8 +425,8 @@ function showNotification(message, type = 'success') {
         bottom: 24px;
         right: 24px;
         padding: 16px 24px;
-        background: ${type === 'success' ? 'linear-gradient(135deg, #d4a574 0%, #b8860b 100%)' : '#ff4444'};
-        color: ${type === 'success' ? '#0a0a0f' : '#fff'};
+        background: ${type === 'success' ? 'var(--color-accent-gradient)' : 'var(--color-error)'};
+        color: ${type === 'success' ? 'var(--color-bg-primary)' : '#fff'};
         border-radius: 12px;
         font-weight: 600;
         display: flex;
@@ -442,20 +499,28 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Apply scroll animations to service cards
-document.querySelectorAll('.service-card').forEach((card, index) => {
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(30px)';
-    card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s, box-shadow 0.35s ease`;
-    observer.observe(card);
-});
+// Apply scroll animations to service cards and process steps
+if (!prefersReducedMotion()) {
+    ['.service-card', '.process-step'].forEach(selector => {
+        document.querySelectorAll(selector).forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s, box-shadow 0.35s ease`;
+            observer.observe(card);
+        });
+    });
+} else {
+    document.querySelectorAll('.service-card').forEach(card => { card.dataset.revealed = 'true'; });
+}
 
 // ============================================
 // 3D CARD TILT ON MOUSE MOVE
 // ============================================
+const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 document.querySelectorAll('.service-card').forEach(card => {
+    if (!canHover) return;
     card.addEventListener('mousemove', (e) => {
-        if (card.dataset.revealed !== 'true') return;
+        if (card.dataset.revealed !== 'true' || prefersReducedMotion()) return;
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -482,6 +547,7 @@ const heroOrbs  = document.querySelectorAll('.hero-orb');
 const heroEl    = document.querySelector('.hero');
 
 window.addEventListener('scroll', () => {
+    if (prefersReducedMotion()) return;
     const scrollY = window.pageYOffset;
     const heroH   = heroEl ? heroEl.offsetHeight : window.innerHeight;
     if (scrollY > heroH) return;

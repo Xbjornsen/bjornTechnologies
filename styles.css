@@ -971,3 +971,181 @@ img {
 .hero-content .hero-subtitle { animation-delay: 0.2s; }
 .hero-content .hero-cta { animation-delay: 0.3s; }
 .hero-content .hero-stats { animation-delay: 0.4s; }
+
+/* ============================================
+   ADDITIONS — local presence, process, a11y
+   ============================================ */
+
+/* Hero location eyebrow */
+.hero-eyebrow {
+    display: inline-block;
+    padding: 8px 16px;
+    margin-bottom: 24px;
+    background: rgba(212, 165, 116, 0.1);
+    border: 1px solid rgba(212, 165, 116, 0.2);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-accent-primary);
+}
+
+.hero-content .hero-eyebrow { animation-delay: 0.05s; }
+
+/* Five service cards: 3 on top, 2 centred below on wide screens */
+@media (min-width: 1024px) {
+    .services-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+    .services-grid .service-card {
+        grid-column: span 2;
+    }
+    .services-grid .service-card:nth-child(4) {
+        grid-column: 2 / span 2;
+    }
+    .services-grid .service-card:nth-child(5) {
+        grid-column: 4 / span 2;
+    }
+}
+
+/* Process Section */
+.process {
+    position: relative;
+    padding: 100px 0;
+    background: var(--color-bg-secondary);
+    z-index: 1;
+}
+
+.process-steps {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    counter-reset: none;
+}
+
+.process-step {
+    position: relative;
+    padding: 28px;
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+}
+
+.process-num {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 16px;
+    background: var(--color-accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.process-step h3 {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+
+.process-step p {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+}
+
+@media (max-width: 968px) {
+    .process-steps {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+    .process-steps {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Contact extras */
+.contact-item a:hover {
+    color: var(--color-accent-primary);
+}
+
+.form-note {
+    margin-top: 14px;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+.form-note a {
+    color: var(--color-accent-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* Honeypot — hidden from people, visible to bots */
+.botcheck {
+    position: absolute !important;
+    left: -9999px !important;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.footer-brand .footer-location {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
+/* Visible keyboard focus */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+.btn:focus-visible {
+    outline: 2px solid var(--color-accent-primary);
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+/* Mobile menu fix: .navbar's backdrop-filter makes it the containing block for
+   fixed children, which squashed the panel to ~80px. Anchor it to the navbar instead. */
+@media (max-width: 768px) {
+    .nav-links {
+        position: absolute;
+        top: 100%;
+        bottom: auto;
+        height: calc(100vh - 100%);
+        height: calc(100dvh - 100%);
+        overflow-y: auto;
+        visibility: hidden;
+        transition: transform var(--transition-medium), visibility 0s linear 0.3s;
+    }
+    .nav-links.active {
+        visibility: visible;
+        transition: transform var(--transition-medium), visibility 0s;
+    }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    .hero-orb {
+        animation: none !important;
+    }
+    .btn-primary:hover {
+        transform: none;
+    }
+}
