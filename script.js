@@ -19,10 +19,10 @@ const config = {
     pulseSpeed: 0.01,
     nodeSize: { min: 0.8, max: 3 },
     colors: {
-        node: '#d4a574',
-        nodePulse: '#b8860b',
-        connection: 'rgba(212, 165, 116, 0.08)',
-        connectionActive: 'rgba(212, 165, 116, 0.2)'
+        node: '#CC996E',
+        nodePulse: '#C09050',
+        connection: 'rgba(204, 153, 110, 0.08)',
+        connectionActive: 'rgba(204, 153, 110, 0.2)'
     }
 };
 
@@ -99,8 +99,8 @@ class Node {
                 this.x, this.y, 0,
                 this.x, this.y, currentRadius * 3
             );
-            gradient.addColorStop(0, 'rgba(212, 165, 116, 0.15)');
-            gradient.addColorStop(1, 'rgba(212, 165, 116, 0)');
+            gradient.addColorStop(0, 'rgba(204, 153, 110, 0.15)');
+            gradient.addColorStop(1, 'rgba(204, 153, 110, 0)');
             ctx.fillStyle = gradient;
             ctx.fill();
         }
@@ -160,8 +160,8 @@ class DataPulse {
         const trailY = this.startNode.y + (this.endNode.y - this.startNode.y) * trailStart;
 
         const gradient = ctx.createLinearGradient(trailX, trailY, x, y);
-        gradient.addColorStop(0, 'rgba(212, 165, 116, 0)');
-        gradient.addColorStop(1, 'rgba(212, 165, 116, 0.6)');
+        gradient.addColorStop(0, 'rgba(204, 153, 110, 0)');
+        gradient.addColorStop(1, 'rgba(204, 153, 110, 0.6)');
 
         ctx.beginPath();
         ctx.moveTo(trailX, trailY);
@@ -198,7 +198,7 @@ function drawConnections() {
                 const avgDepth = (nodes[i].depth + nodes[j].depth) * 0.5;
 
                 if (isActiveConnection) {
-                    ctx.strokeStyle = `rgba(212, 165, 116, ${opacity * 0.28 * (0.5 + avgDepth * 0.5)})`;
+                    ctx.strokeStyle = `rgba(204, 153, 110, ${opacity * 0.28 * (0.5 + avgDepth * 0.5)})`;
                     ctx.lineWidth = 0.5 + avgDepth * 0.8;
 
                     // Spawn data pulse occasionally
@@ -208,7 +208,7 @@ function drawConnections() {
                         dataPulses.push(new DataPulse(startNode, endNode));
                     }
                 } else {
-                    ctx.strokeStyle = `rgba(212, 165, 116, ${opacity * 0.045 * (0.3 + avgDepth * 0.7)})`;
+                    ctx.strokeStyle = `rgba(204, 153, 110, ${opacity * 0.045 * (0.3 + avgDepth * 0.7)})`;
                     ctx.lineWidth = 0.3 + avgDepth * 0.4;
                 }
 
@@ -221,12 +221,12 @@ function drawConnections() {
 // Animation loop
 function animate() {
     // Clear canvas with fade effect for trails
-    ctx.fillStyle = 'rgba(26, 20, 16, 0.1)';
+    ctx.fillStyle = 'rgba(28, 40, 64, 0.1)';
     ctx.fillRect(0, 0, viewW, viewH);
 
     // Clear more aggressively periodically to prevent buildup
     if (Math.random() < 0.01) {
-        ctx.fillStyle = 'rgba(26, 20, 16, 0.5)';
+        ctx.fillStyle = 'rgba(28, 40, 64, 0.5)';
         ctx.fillRect(0, 0, viewW, viewH);
     }
 
@@ -254,7 +254,7 @@ function animate() {
 
 // Single still frame for users who prefer reduced motion
 function drawStaticFrame() {
-    ctx.fillStyle = 'rgb(26, 20, 16)';
+    ctx.fillStyle = 'rgb(28, 40, 64)';
     ctx.fillRect(0, 0, viewW, viewH);
     drawConnections();
     nodes.forEach(node => node.draw());
@@ -336,70 +336,68 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Navbar scroll effect
+// Navbar scroll effect (colours live in styles.css: .navbar / .navbar.scrolled)
 const navbar = document.querySelector('.navbar');
 
-window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
+if (navbar) {
+    const updateNavbar = () => navbar.classList.toggle('scrolled', window.pageYOffset > 50);
+    window.addEventListener('scroll', updateNavbar, { passive: true });
+    updateNavbar();
+}
 
-    if (currentScroll > 50) {
-        navbar.style.background = 'rgba(26, 20, 16, 0.98)';
-    } else {
-        navbar.style.background = 'rgba(26, 20, 16, 0.9)';
-    }
-});
-
-// Contact Form Handling
+// Contact Form Handling (only present on the homepage)
 const contactForm = document.getElementById('contactForm');
 
-contactForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
+if (contactForm) {
+    contactForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
 
-    const formData = new FormData(this);
-    const data = Object.fromEntries(formData);
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
 
-    // Honeypot — real users never tick the hidden botcheck box
-    if (data.botcheck) return;
+        // Honeypot — real users never tick the hidden botcheck box
+        if (data.botcheck) return;
 
-    // Basic validation
-    if (!data.name || !data.email || !data.service) {
-        showNotification('Please fill in all required fields.', 'error');
-        return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(data.email)) {
-        showNotification('Please enter a valid email address.', 'error');
-        return;
-    }
-
-    const submitBtn = this.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = 'Sending...';
-    submitBtn.disabled = true;
-
-    try {
-        const response = await fetch('https://api.web3forms.com/submit', {
-            method: 'POST',
-            body: formData
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            showNotification('Thank you! We\'ll be in touch soon to schedule your call.', 'success');
-            this.reset();
-        } else {
-            showNotification('Something went wrong. Please try again.', 'error');
+        // Basic validation
+        if (!data.name || !data.email || !data.service) {
+            showNotification('Please fill in all required fields.', 'error');
+            return;
         }
-    } catch (error) {
-        showNotification('Something went wrong. Please try again.', 'error');
-    } finally {
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-    }
-});
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(data.email)) {
+            showNotification('Please enter a valid email address.', 'error');
+            return;
+        }
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showNotification('Thank you! We\'ll be in touch soon to schedule your call.', 'success');
+                this.reset();
+            } else {
+                showNotification('Something went wrong. Please try again.', 'error');
+            }
+        } catch (error) {
+            showNotification('Something went wrong. Please try again.', 'error');
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+}
 
 // Notification System
 function showNotification(message, type = 'success') {

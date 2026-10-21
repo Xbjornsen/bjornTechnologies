@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <defs>
     <linearGradient id="copperGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#d4a574"/>
-      <stop offset="100%" style="stop-color:#b8860b"/>
+      <stop offset="0%" style="stop-color:#CC996E"/>
+      <stop offset="100%" style="stop-color:#C09050"/>
     </linearGradient>
   </defs>
 
   <!-- Background -->
-  <rect width="32" height="32" rx="6" fill="#1a1410"/>
+  <rect width="32" height="32" rx="6" fill="#1C2840"/>
 
   <!-- Bear silhouette -->
   <path fill="url(#copperGrad)" d="
@@ -22,14 +22,14 @@
   "/>
 
   <!-- Circuit traces -->
-  <g stroke="#1a1410" stroke-width="1" fill="none" stroke-linecap="round">
+  <g stroke="#1C2840" stroke-width="1" fill="none" stroke-linecap="round">
     <path d="M16,8 L16,14 L16,22"/>
     <path d="M10,14 L22,14"/>
     <path d="M11,20 L21,20"/>
   </g>
 
   <!-- Circuit nodes -->
-  <g fill="#1a1410">
+  <g fill="#1C2840">
     <circle cx="16" cy="8" r="1.5"/>
     <circle cx="16" cy="14" r="1.5"/>
     <circle cx="16" cy="22" r="1.5"/>
