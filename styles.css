@@ -322,7 +322,7 @@ img {
 .section-tag {
     display: inline-block;
     padding: 8px 16px;
-    background: rgba(204, 153, 110, 0.1);
+    background: rgba(204, 153, 110, 0.06);
     border: 1px solid rgba(204, 153, 110, 0.2);
     border-radius: 100px;
     font-size: 0.85rem;
@@ -987,7 +987,7 @@ img {
     display: inline-block;
     padding: 8px 16px;
     margin-bottom: 24px;
-    background: rgba(204, 153, 110, 0.1);
+    background: rgba(204, 153, 110, 0.06);
     border: 1px solid rgba(204, 153, 110, 0.2);
     border-radius: 100px;
     font-size: 0.85rem;
