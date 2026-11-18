@@ -371,13 +371,20 @@ if (contactForm) {
             return;
         }
 
+        const token = getTurnstileToken(this);
+        if (!token) {
+            showNotification('Please complete the verification check before sending your message.', 'error');
+            return;
+        }
+        formData.set('cf-turnstile-response', token);
+
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Sending...';
         submitBtn.disabled = true;
 
         try {
-            const response = await fetch('https://api.web3forms.com/submit', {
+            const response = await fetch('https://bjorn-contact.bjorntechnologies.workers.dev', {
                 method: 'POST',
                 body: formData
             });
@@ -393,10 +400,34 @@ if (contactForm) {
         } catch (error) {
             showNotification('Something went wrong. Please try again.', 'error');
         } finally {
+            resetTurnstile();
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
         }
     });
+}
+
+function getTurnstileToken(form) {
+    const field = form.querySelector('[name="cf-turnstile-response"]');
+    if (field && field.value) return field.value;
+    if (window.turnstile && typeof window.turnstile.getResponse === 'function') {
+        try {
+            return window.turnstile.getResponse() || '';
+        } catch (error) {
+            return '';
+        }
+    }
+    return '';
+}
+
+function resetTurnstile() {
+    if (window.turnstile && typeof window.turnstile.reset === 'function') {
+        try {
+            window.turnstile.reset();
+        } catch (error) {
+            // Widget may not have rendered yet
+        }
+    }
 }
 
 // Notification System
