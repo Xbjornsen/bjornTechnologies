@@ -1094,6 +1094,11 @@ img {
     text-underline-offset: 3px;
 }
 
+/* Turnstile widget spacing */
+.turnstile-widget {
+    min-height: 65px;
+}
+
 /* Honeypot — hidden from people, visible to bots */
 .botcheck {
     position: absolute !important;
