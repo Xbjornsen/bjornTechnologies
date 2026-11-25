@@ -1,286 +1,164 @@
 // ============================================
-// ANIMATED CIRCUIT/NEURAL NETWORK BACKGROUND
+// MOTION PREFERENCES & BACKGROUND ANIMATION
 // ============================================
-const canvas = document.getElementById('circuitCanvas');
-const ctx = canvas.getContext('2d');
 const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 const prefersReducedMotion = () => reducedMotionQuery.matches;
 
-// Logical (CSS pixel) viewport size — the canvas backing store is scaled by devicePixelRatio
-let viewW = window.innerWidth;
-let viewH = window.innerHeight;
-let bgReady = false;
-
-// Configuration
-const config = {
-    nodeCount: window.innerWidth < 768 ? 24 : 50,
-    connectionDistance: 140,
-    nodeSpeed: 0.15,
-    pulseSpeed: 0.01,
-    nodeSize: { min: 0.8, max: 3 },
-    colors: {
-        node: '#CC996E',
-        nodePulse: '#C09050',
-        connection: 'rgba(204, 153, 110, 0.08)',
-        connectionActive: 'rgba(204, 153, 110, 0.2)'
-    }
-};
-
-// Resize canvas (crisp on high-DPI screens)
-function resizeCanvas() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    viewW = window.innerWidth;
-    viewH = window.innerHeight;
-    canvas.width = Math.round(viewW * dpr);
-    canvas.height = Math.round(viewH * dpr);
-    canvas.style.width = viewW + 'px';
-    canvas.style.height = viewH + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    if (bgReady && prefersReducedMotion()) drawStaticFrame();
+function syncBackgroundMotion() {
+    document.documentElement.classList.toggle('bg-paused', document.hidden);
 }
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
+document.addEventListener('visibilitychange', syncBackgroundMotion);
+syncBackgroundMotion();
 
-// Node class
-class Node {
-    constructor() {
-        this.x = Math.random() * viewW;
-        this.y = Math.random() * viewH;
-        this.depth = Math.random(); // 0 = far (small/dim), 1 = near (large/bright)
-        const speedScale = 0.4 + this.depth * 0.6;
-        this.vx = (Math.random() - 0.5) * config.nodeSpeed * speedScale;
-        this.vy = (Math.random() - 0.5) * config.nodeSpeed * speedScale;
-        const sizeRange = config.nodeSize.max - config.nodeSize.min;
-        this.radius = config.nodeSize.min + this.depth * sizeRange;
-        this.pulsePhase = Math.random() * Math.PI * 2;
-        this.pulseSpeed = config.pulseSpeed + Math.random() * 0.01;
-        this.connections = [];
-        this.isActive = false;
-        this.activeTimer = 0;
+// ============================================
+// HERO BEAR WALK CYCLE
+// Lightweight SVG joint animation. Pauses when the tab is hidden
+// and holds a standing pose when the user prefers reduced motion.
+// ============================================
+(function initBearWalk() {
+    const root = document.querySelector('.hero-bear');
+    if (!root) return;
+
+    const $ = (sel) => root.querySelector(sel);
+    const joints = {
+        bob: $('.bear-bob'),
+        head: $('.bear-head-joint'),
+        hindNearHip: $('.hind-near-hip'),
+        hindNearKnee: $('.hind-near-knee'),
+        hindNearAnkle: $('.hind-near-ankle'),
+        frontNearHip: $('.front-near-hip'),
+        frontNearKnee: $('.front-near-knee'),
+        frontNearAnkle: $('.front-near-ankle'),
+        hindFarHip: $('.hind-far-hip'),
+        hindFarKnee: $('.hind-far-knee'),
+        hindFarAnkle: $('.hind-far-ankle'),
+        frontFarHip: $('.front-far-hip'),
+        frontFarKnee: $('.front-far-knee'),
+        frontFarAnkle: $('.front-far-ankle')
+    };
+    if (Object.values(joints).some((el) => !el)) return;
+
+    const CYCLE_MS = 2000;
+
+    // Keyframes are [phase 0–1, value]. Linear between stops is enough
+    // because the stops themselves are placed at stance/swing transitions.
+    const hindHip = [[0, -20], [0.31, 2], [0.62, 24], [0.74, 6], [0.86, -24], [1, -20]];
+    const hindKnee = [[0, 12], [0.25, 6], [0.55, 10], [0.62, 16], [0.74, 52], [0.86, 28], [0.96, 14], [1, 12]];
+    const hindAnkle = [[0, 3], [0.2, 1], [0.55, -16], [0.62, -14], [0.74, -26], [0.9, 6], [1, 3]];
+    const frontHip = [[0, -18], [0.3, 2], [0.6, 20], [0.72, 4], [0.86, -22], [1, -18]];
+    const frontKnee = [[0, 14], [0.22, 8], [0.52, 12], [0.6, 18], [0.72, 58], [0.86, 30], [0.96, 16], [1, 14]];
+    const frontAnkle = [[0, 2], [0.22, -8], [0.52, -18], [0.6, -14], [0.72, -28], [0.9, 4], [1, 2]];
+
+    function wrap(t) {
+        return ((t % 1) + 1) % 1;
     }
 
-    update() {
-        // Move node
-        this.x += this.vx;
-        this.y += this.vy;
-
-        // Bounce off edges
-        if (this.x < 0 || this.x > viewW) this.vx *= -1;
-        if (this.y < 0 || this.y > viewH) this.vy *= -1;
-
-        // Keep in bounds
-        this.x = Math.max(0, Math.min(viewW, this.x));
-        this.y = Math.max(0, Math.min(viewH, this.y));
-
-        // Update pulse
-        this.pulsePhase += this.pulseSpeed;
-
-        // Random activation (neural firing)
-        if (Math.random() < 0.0003) {
-            this.isActive = true;
-            this.activeTimer = 40;
-        }
-
-        if (this.activeTimer > 0) {
-            this.activeTimer--;
-            if (this.activeTimer === 0) this.isActive = false;
-        }
-    }
-
-    draw() {
-        const pulse = Math.sin(this.pulsePhase) * 0.5 + 0.5;
-        const currentRadius = this.radius + pulse * 1.5;
-
-        // Glow effect for active nodes
-        if (this.isActive) {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, currentRadius * 3, 0, Math.PI * 2);
-            const gradient = ctx.createRadialGradient(
-                this.x, this.y, 0,
-                this.x, this.y, currentRadius * 3
-            );
-            gradient.addColorStop(0, 'rgba(204, 153, 110, 0.15)');
-            gradient.addColorStop(1, 'rgba(204, 153, 110, 0)');
-            ctx.fillStyle = gradient;
-            ctx.fill();
-        }
-
-        // Main node — brighter/larger nodes appear closer (depth-based opacity)
-        const baseAlpha = 0.25 + this.depth * 0.55;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, currentRadius, 0, Math.PI * 2);
-        ctx.fillStyle = this.isActive ? config.colors.nodePulse : config.colors.node;
-        ctx.globalAlpha = baseAlpha + pulse * 0.2;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-    }
-}
-
-// Create nodes
-const nodes = [];
-for (let i = 0; i < config.nodeCount; i++) {
-    nodes.push(new Node());
-}
-
-// Data pulse class (traveling along connections)
-class DataPulse {
-    constructor(startNode, endNode) {
-        this.startNode = startNode;
-        this.endNode = endNode;
-        this.progress = 0;
-        this.speed = 0.02 + Math.random() * 0.02;
-        this.alive = true;
-    }
-
-    update() {
-        this.progress += this.speed;
-        if (this.progress >= 1) {
-            this.alive = false;
-            // Chance to activate the end node
-            if (Math.random() < 0.3) {
-                this.endNode.isActive = true;
-                this.endNode.activeTimer = 40;
+    function sample(keys, t) {
+        const p = wrap(t);
+        for (let i = 0; i < keys.length - 1; i++) {
+            const [t0, v0] = keys[i];
+            const [t1, v1] = keys[i + 1];
+            if (p >= t0 && p <= t1) {
+                const u = (p - t0) / (t1 - t0);
+                return v0 + (v1 - v0) * u;
             }
         }
+        return keys[keys.length - 1][1];
     }
 
-    draw() {
-        const x = this.startNode.x + (this.endNode.x - this.startNode.x) * this.progress;
-        const y = this.startNode.y + (this.endNode.y - this.startNode.y) * this.progress;
-
-        ctx.beginPath();
-        ctx.arc(x, y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = config.colors.nodePulse;
-        ctx.fill();
-
-        // Trail effect
-        const trailLength = 0.1;
-        const trailStart = Math.max(0, this.progress - trailLength);
-        const trailX = this.startNode.x + (this.endNode.x - this.startNode.x) * trailStart;
-        const trailY = this.startNode.y + (this.endNode.y - this.startNode.y) * trailStart;
-
-        const gradient = ctx.createLinearGradient(trailX, trailY, x, y);
-        gradient.addColorStop(0, 'rgba(204, 153, 110, 0)');
-        gradient.addColorStop(1, 'rgba(204, 153, 110, 0.6)');
-
-        ctx.beginPath();
-        ctx.moveTo(trailX, trailY);
-        ctx.lineTo(x, y);
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 2;
-        ctx.stroke();
+    function rotate(el, deg) {
+        el.setAttribute('transform', 'rotate(' + deg.toFixed(2) + ')');
     }
-}
 
-const dataPulses = [];
+    function pose(t) {
+        const bobY = Math.cos(t * Math.PI * 4) * 2.4;
+        const bobR = Math.sin(t * Math.PI * 2) * -1.0;
+        joints.bob.setAttribute('transform', 'translate(0,' + bobY.toFixed(2) + ') rotate(' + bobR.toFixed(2) + ')');
+        rotate(joints.head, 6 + Math.sin((t - 0.08) * Math.PI * 2) * 3.2);
 
-const connectionDistanceSq = config.connectionDistance * config.connectionDistance;
-
-// Draw connections between nodes
-function drawConnections() {
-    for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-            const dx = nodes[i].x - nodes[j].x;
-            const dy = nodes[i].y - nodes[j].y;
-            const distSq = dx * dx + dy * dy;
-            if (distSq >= connectionDistanceSq) continue;
-            const distance = Math.sqrt(distSq);
-
-            {
-                const opacity = 1 - (distance / config.connectionDistance);
-                const isActiveConnection = nodes[i].isActive || nodes[j].isActive;
-
-                ctx.beginPath();
-                ctx.moveTo(nodes[i].x, nodes[i].y);
-                ctx.lineTo(nodes[j].x, nodes[j].y);
-
-                // Average depth of the two connected nodes for line weight/opacity
-                const avgDepth = (nodes[i].depth + nodes[j].depth) * 0.5;
-
-                if (isActiveConnection) {
-                    ctx.strokeStyle = `rgba(204, 153, 110, ${opacity * 0.28 * (0.5 + avgDepth * 0.5)})`;
-                    ctx.lineWidth = 0.5 + avgDepth * 0.8;
-
-                    // Spawn data pulse occasionally
-                    if (Math.random() < 0.005 && dataPulses.length < 10) {
-                        const startNode = nodes[i].isActive ? nodes[i] : nodes[j];
-                        const endNode = nodes[i].isActive ? nodes[j] : nodes[i];
-                        dataPulses.push(new DataPulse(startNode, endNode));
-                    }
-                } else {
-                    ctx.strokeStyle = `rgba(204, 153, 110, ${opacity * 0.045 * (0.3 + avgDepth * 0.7)})`;
-                    ctx.lineWidth = 0.3 + avgDepth * 0.4;
-                }
-
-                ctx.stroke();
+        const legs = [
+            { hip: joints.hindNearHip, knee: joints.hindNearKnee, ankle: joints.hindNearAnkle, phase: 0, kind: 'hind' },
+            { hip: joints.frontNearHip, knee: joints.frontNearKnee, ankle: joints.frontNearAnkle, phase: 0.09, kind: 'front' },
+            { hip: joints.hindFarHip, knee: joints.hindFarKnee, ankle: joints.hindFarAnkle, phase: 0.5, kind: 'hind' },
+            { hip: joints.frontFarHip, knee: joints.frontFarKnee, ankle: joints.frontFarAnkle, phase: 0.59, kind: 'front' }
+        ];
+        legs.forEach((leg) => {
+            const p = t - leg.phase;
+            if (leg.kind === 'hind') {
+                rotate(leg.hip, sample(hindHip, p));
+                rotate(leg.knee, sample(hindKnee, p));
+                rotate(leg.ankle, sample(hindAnkle, p));
+            } else {
+                rotate(leg.hip, sample(frontHip, p));
+                rotate(leg.knee, sample(frontKnee, p));
+                rotate(leg.ankle, sample(frontAnkle, p));
             }
+        });
+    }
+
+    function poseStand() {
+        joints.bob.setAttribute('transform', 'translate(0,0)');
+        rotate(joints.head, 6);
+        rotate(joints.hindNearHip, -6);
+        rotate(joints.hindFarHip, -6);
+        rotate(joints.hindNearKnee, 14);
+        rotate(joints.hindFarKnee, 14);
+        rotate(joints.hindNearAnkle, -6);
+        rotate(joints.hindFarAnkle, -6);
+        rotate(joints.frontNearHip, 4);
+        rotate(joints.frontFarHip, 4);
+        rotate(joints.frontNearKnee, 12);
+        rotate(joints.frontFarKnee, 12);
+        rotate(joints.frontNearAnkle, -12);
+        rotate(joints.frontFarAnkle, -12);
+    }
+
+    let raf = null;
+    let lastTs = null;
+    let phase = 0;
+
+    function frame(now) {
+        if (document.hidden || prefersReducedMotion()) {
+            raf = null;
+            lastTs = null;
+            return;
+        }
+        if (lastTs != null) phase += (now - lastTs) / CYCLE_MS;
+        lastTs = now;
+        pose(phase);
+        raf = requestAnimationFrame(frame);
+    }
+
+    function start() {
+        if (prefersReducedMotion()) {
+            if (raf != null) cancelAnimationFrame(raf);
+            raf = null;
+            lastTs = null;
+            poseStand();
+            return;
+        }
+        if (raf == null) {
+            lastTs = null;
+            raf = requestAnimationFrame(frame);
         }
     }
-}
 
-// Animation loop
-function animate() {
-    // Clear canvas with fade effect for trails
-    ctx.fillStyle = 'rgba(28, 40, 64, 0.1)';
-    ctx.fillRect(0, 0, viewW, viewH);
-
-    // Clear more aggressively periodically to prevent buildup
-    if (Math.random() < 0.01) {
-        ctx.fillStyle = 'rgba(28, 40, 64, 0.5)';
-        ctx.fillRect(0, 0, viewW, viewH);
+    function stop() {
+        if (raf != null) cancelAnimationFrame(raf);
+        raf = null;
+        lastTs = null;
     }
 
-    // Draw connections first (behind nodes)
-    drawConnections();
-
-    // Update and draw data pulses
-    for (let i = dataPulses.length - 1; i >= 0; i--) {
-        dataPulses[i].update();
-        if (dataPulses[i].alive) {
-            dataPulses[i].draw();
-        } else {
-            dataPulses.splice(i, 1);
-        }
-    }
-
-    // Update and draw nodes
-    nodes.forEach(node => {
-        node.update();
-        node.draw();
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stop();
+        else start();
     });
+    reducedMotionQuery.addEventListener?.('change', start);
 
-    animationId = requestAnimationFrame(animate);
-}
+    poseStand();
+    start();
+})();
 
-// Single still frame for users who prefer reduced motion
-function drawStaticFrame() {
-    ctx.fillStyle = 'rgb(28, 40, 64)';
-    ctx.fillRect(0, 0, viewW, viewH);
-    drawConnections();
-    nodes.forEach(node => node.draw());
-}
-
-let animationId = null;
-function startBackground() {
-    if (animationId !== null) cancelAnimationFrame(animationId);
-    animationId = null;
-    if (prefersReducedMotion()) {
-        drawStaticFrame();
-    } else {
-        animate();
-    }
-}
-bgReady = true;
-startBackground();
-reducedMotionQuery.addEventListener?.('change', startBackground);
-
-// Randomly activate nodes periodically
-setInterval(() => {
-    if (prefersReducedMotion() || document.hidden) return;
-    const randomNode = nodes[Math.floor(Math.random() * nodes.length)];
-    randomNode.isActive = true;
-    randomNode.activeTimer = 30;
-}, 4000);
 
 // ============================================
 // MAIN SITE FUNCTIONALITY

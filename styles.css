@@ -53,15 +53,112 @@ body::after {
     background-size: 200px 200px;
 }
 
-/* Animated Circuit Background */
-#circuitCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
+/* Hero walking-bear background (replaces the old particle canvas) */
+.hero-bear {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
     pointer-events: none;
+    overflow: hidden;
+}
+
+.hero-bear-scene {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: min(820px, 64vw);
+    height: auto;
+    opacity: 0.4;
+    transform: translate(4%, 2%);
+}
+
+.hero-bear-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.hero-bear-svg .bone,
+.hero-bear-svg .paw,
+.hero-bear-svg .body-outline,
+.hero-bear-svg .head-outline,
+.hero-bear-svg .ear {
+    fill: none;
+    stroke: #CC996E;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.hero-bear-svg .body-fill,
+.hero-bear-svg .head-fill,
+.hero-bear-svg .ear-fill {
+    fill: rgba(204, 153, 110, 0.11);
+    stroke: none;
+}
+
+.hero-bear-svg .body-outline { stroke-width: 2.8; }
+.hero-bear-svg .head-outline { stroke-width: 2.5; }
+.hero-bear-svg .ear { stroke-width: 2.2; }
+.hero-bear-svg .bone { stroke-width: 3.3; }
+.hero-bear-svg .paw { stroke-width: 2.4; fill: rgba(204, 153, 110, 0.1); }
+
+.hero-bear-svg .trace {
+    fill: none;
+    stroke: #C09050;
+    stroke-width: 1.15;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.9;
+}
+
+.hero-bear-svg .bear-node {
+    fill: #C09050;
+    stroke: #CC996E;
+    stroke-width: 0.7;
+}
+
+.hero-bear-svg .bear-node-core {
+    fill: #1C2840;
+    stroke: none;
+}
+
+.hero-bear-svg .leg-far {
+    opacity: 0.42;
+}
+
+.hero-bear-svg .leg-far .bone { stroke-width: 2.4; }
+.hero-bear-svg .leg-far .paw { stroke-width: 1.9; }
+
+.hero-bear-svg .bear {
+    filter: url(#heroBearGlow);
+}
+
+.hero-bear-svg .bear-ground-scroll {
+    animation: bearGroundScroll 2.4s linear infinite;
+}
+
+@keyframes bearGroundScroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-200px); }
+}
+
+@media (max-width: 900px) {
+    .hero-bear-scene {
+        width: min(620px, 90vw);
+        right: 50%;
+        transform: translate(50%, 4%);
+        opacity: 0.28;
+    }
+}
+
+@media (max-width: 600px) {
+    .hero-bear-scene {
+        width: min(500px, 102vw);
+        opacity: 0.28;
+        transform: translate(50%, 0%);
+        bottom: 8px;
+    }
 }
 
 a {
@@ -1143,6 +1240,11 @@ summary:focus-visible,
     }
 }
 
+/* Pause the walk cycle when the tab is in the background */
+html.bg-paused .hero-bear * {
+    animation-play-state: paused !important;
+}
+
 /* Respect reduced-motion preferences */
 @media (prefers-reduced-motion: reduce) {
     html {
@@ -1153,7 +1255,8 @@ summary:focus-visible,
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
-    .hero-orb {
+    .hero-orb,
+    .hero-bear * {
         animation: none !important;
     }
     .btn-primary:hover {
