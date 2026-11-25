@@ -1,44 +1,49 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <defs>
     <linearGradient id="copperGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#CC996E"/>
-      <stop offset="100%" style="stop-color:#C09050"/>
+      <stop offset="0%" stop-color="#CC996E"/>
+      <stop offset="50%" stop-color="#C9956C"/>
+      <stop offset="100%" stop-color="#C09050"/>
     </linearGradient>
   </defs>
 
-  <!-- Background -->
   <rect width="32" height="32" rx="6" fill="#1C2840"/>
 
-  <!-- Bear silhouette -->
-  <path fill="url(#copperGrad)" d="
-    M8,10
-    C6.5,10 5.2,8.8 5.2,7.3 C5.2,5.8 6.5,4.5 8,4.5 C9,4.5 9.8,5 10.3,5.8
-    C11.3,5 12.5,4.5 14,4.5 L18,4.5
-    C19.5,4.5 20.7,5 21.7,5.8
-    C22.2,5 23,4.5 24,4.5 C25.5,4.5 26.8,5.8 26.8,7.3 C26.8,8.8 25.5,10 24,10
-    C25,11.3 25.6,13 25.6,15
-    L25.6,23 C25.6,26 22.5,28.5 16,28.5 C9.5,28.5 6.4,26 6.4,23 L6.4,15
-    C6.4,13 7,11.3 8,10 Z
-  "/>
-
-  <!-- Circuit traces -->
-  <g stroke="#1C2840" stroke-width="1" fill="none" stroke-linecap="round">
-    <path d="M16,8 L16,14 L16,22"/>
-    <path d="M10,14 L22,14"/>
-    <path d="M11,20 L21,20"/>
-  </g>
-
-  <!-- Circuit nodes -->
-  <g fill="#1C2840">
-    <circle cx="16" cy="8" r="1.5"/>
-    <circle cx="16" cy="14" r="1.5"/>
-    <circle cx="16" cy="22" r="1.5"/>
-    <circle cx="10" cy="14" r="1.2"/>
-    <circle cx="22" cy="14" r="1.2"/>
-    <circle cx="11" cy="20" r="1"/>
-    <circle cx="21" cy="20" r="1"/>
-    <!-- Eyes -->
-    <rect x="11.5" y="10" width="2.5" height="2.5" rx="0.5"/>
-    <rect x="18" y="10" width="2.5" height="2.5" rx="0.5"/>
+  <!-- Polished circuit-face bear, inset and slightly simplified for 32px -->
+  <g transform="translate(2, 2) scale(0.28)">
+    <path fill="url(#copperGrad)" d="
+      M 27,28
+      C 22,28 16,23 16,17
+      C 16,10.5 22,7 28.5,7
+      C 33,7 36.5,10 38,14.5
+      C 41.5,12.5 45.5,11.5 50,11.5
+      C 54.5,11.5 58.5,12.5 62,14.5
+      C 63.5,10 67,7 71.5,7
+      C 78,7 84,10.5 84,17
+      C 84,23 78,28 73,28
+      C 82,34 89,43 89,54
+      C 89,62 84,68 76,71
+      C 72,81 63,92 50,92
+      C 37,92 28,81 24,71
+      C 16,68 11,62 11,54
+      C 11,43 18,34 27,28
+      Z"/>
+    <ellipse cx="50" cy="75" rx="21" ry="15" fill="#D4A87A"/>
+    <g stroke="#1C2840" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M27,14 L50,22 L73,14"/>
+      <path d="M50,22 L50,68"/>
+      <path d="M36,51 L50,40 L64,51"/>
+    </g>
+    <g fill="#1C2840">
+      <circle cx="27" cy="14" r="2.8"/>
+      <circle cx="73" cy="14" r="2.8"/>
+      <circle cx="50" cy="22" r="2.8"/>
+      <circle cx="50" cy="40" r="2.8"/>
+      <circle cx="36" cy="51" r="6.8"/>
+      <circle cx="64" cy="51" r="6.8"/>
+      <rect x="43" y="68" width="14" height="12" rx="3.5"/>
+    </g>
+    <circle cx="36" cy="51" r="3" fill="#D4A87A"/>
+    <circle cx="64" cy="51" r="3" fill="#D4A87A"/>
   </g>
 </svg>
